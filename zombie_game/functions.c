@@ -50,26 +50,8 @@ unsigned int movement(
 
     } while (flag!=1);
 
-    if(agent_grid[y][x].playable )
-    {   
-        printf("ID %.2x   ", rand_id);
-        printf("walk: ");
-        key= getchar(); 
-        int trash= getchar(); 
-    }
-    else if (!(agent_grid[y][x].playable)) 
-    {
-        printf( "NPC!!!   ");
-        printf("ID %.2x   ", rand_id);
-        printf("walk: ");
-            
-        key= getchar();
-    int trash= getchar();
-        // a_int();
-    }
 
-
-    //search the agent in the grid
+//search the agent in the grid
     for( x=0; x<WORLD_X;x++)
     {
         for( y=0; y<WORLD_Y;y++)
@@ -84,9 +66,34 @@ unsigned int movement(
        if(c_id == 1 )
        {
             c_id=0;
+
             break;
         }
     }
+
+
+
+    if(agent_grid[y][x].playable )
+    {   printf("Player ");
+        printf("ID %.2x   ", rand_id);
+        printf("walk: ");
+        key= getchar(); 
+        int trash= getchar(); 
+    }
+    else if (!(agent_grid[y][x].playable)) 
+    {
+        printf( "NPC!!!   ");
+        printf("y:%u,x:%u\n",y,x);
+        printf("ID %.2x   ", rand_id);
+        printf("walk: ");
+            
+        key= getchar();
+    int trash= getchar();
+        // a_int();
+    }
+
+
+    
 
     switch(key)
     {
@@ -155,7 +162,7 @@ unsigned int movement(
 
 
         case right: //right mov
-        {printf("right");
+        {printf("right ");
 
         	//if the entrance are in the first line
             if ((y < WORLD_Y-1) && (agent_grid[y+1][x]).type == None) 
@@ -220,7 +227,7 @@ unsigned int movement(
         }
 
         case down: //down mov
-        {printf("down");
+        {printf("down ");
 
             //if the entrance aren't in the last line
             if (x < WORLD_X-1 && agent_grid[y][x+1].type == None) 
@@ -285,7 +292,7 @@ unsigned int movement(
         }
 
         case left: //left mov
-        {  printf("left"); 
+        {  printf("left "); 
 
             //if the entrance aren't in the first column
             if (y > 0 && (agent_grid[y-1][x]).type == None) 
@@ -349,46 +356,45 @@ unsigned int movement(
         }
 
         case rup: //right up mov
-        {printf("rup");
+        {printf("rup ");
 
     	   //if the entrance aren't in the last line and first column
             if ((x < WORLD_X-1) && (y > 0) &&
-    	      (agent_grid[x+1][y-1]).type == None) 
+    	      (agent_grid[y+1][x-1]).type == None) 
             {
                 AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y-1][x+1]; //hold blank value
+                AGENT hold_pos2 = agent_grid[y+1][x-1]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[x][y] = hold_pos2;
-                agent_grid[x+1][y-1] = hold_pos; 
+                agent_grid[y][x] = hold_pos2;
+                agent_grid[y+1][x-1] = hold_pos; 
                 turn++;
                 break;       
             }
 
-
              //if the entrance are in the last column 
             else if  (y == 0)
             {
-                if((x == WORLD_X-1 ) && (agent_grid[0][WORLD_Y-1].type == None) )
+                if((x == WORLD_X-1 ) && (agent_grid[WORLD_Y-1][0].type == None) )
                 {
-                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
-                    AGENT hold_pos2 = agent_grid[0][WORLD_Y-1]; //hold blank value
+                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[WORLD_X-1][0]; //hold blank value
     
                     /*Swich values between actual and blank values*/
-                    agent_grid[0][WORLD_Y-1] = hold_pos;
-                    agent_grid[x][y] = hold_pos2;  
+                    agent_grid[WORLD_X-1][0] = hold_pos;
+                    agent_grid[y][x] = hold_pos2;  
                     turn++;
                     break;        
                 }
 
-                 if((x != WORLD_X-1 ) && (agent_grid[0][y-1].type == None) )
+                 if((x != WORLD_X-1 ) && (agent_grid[y+1][0].type == None) )
                 {
-                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
-                    AGENT hold_pos2 = agent_grid[0][y-1]; //hold blank value
+                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[y+1][0]; //hold blank value
     
                     /*Swich values between actual and blank values*/
-                    agent_grid[0][y-1] = hold_pos;
-                    agent_grid[x][y] = hold_pos2;  
+                    agent_grid[y+1][0] = hold_pos;
+                    agent_grid[y][x] = hold_pos2;  
                     turn++;
                     break;        
                 }
@@ -400,12 +406,12 @@ unsigned int movement(
                 				****************/
             //if the entrance aren't in thelast line and first column
             if ((x < WORLD_X-1) && (y > 0) 
-            		&& (agent_grid[x][y]).type == Zombie 
-            		&& (agent_grid[x+1][y-1]).type == Human) 
+            		&& (agent_grid[y][x]).type == Zombie 
+            		&& (agent_grid[y-1][x+1]).type == Human) 
             {
                 /*Swich the value of Human to Zombie*/
-               agent_grid[x+1][y-1].type = Zombie;
-                agent_grid[x+1][y-1].playable = 0x0;
+               agent_grid[y-1][x+1].type = Zombie;
+                agent_grid[y-1][x+1].playable = 0x0;
                 turn++;
                 break;       
             }
@@ -414,23 +420,23 @@ unsigned int movement(
             else if ( x == WORLD_X-1 ) 
             {
                 if((y ==  0) 
-                && ( agent_grid[x][y].type == Zombie ) 
-                && ( agent_grid[0][WORLD_Y-1].type == Human) )
+                && ( agent_grid[y][x].type == Zombie ) 
+                && ( agent_grid[WORLD_Y-1][0].type == Human) )
                 {
                     /*Swich the value of Human to Zombie*/
-                    agent_grid[0][WORLD_Y-1].type = Zombie;
-                    agent_grid[0][WORLD_Y-1].playable = 0x0;
+                    agent_grid[WORLD_Y-1][0].type = Zombie;
+                    agent_grid[WORLD_Y-1][0].playable = 0x0;
                     turn++;
                     break;   
                 }
 
                 if((y !=  0) 
-                && ( agent_grid[x][y].type == Zombie ) 
-                && ( agent_grid[0][y-1].type == Human) )
+                && ( agent_grid[y][x].type == Zombie ) 
+                && ( agent_grid[y-1][0].type == Human) )
                 {
                     /*Swich the value of Human to Zombie*/
-                    agent_grid[0][y-1].type = Zombie;
-                    agent_grid[0][y-1].playable = 0x0;
+                    agent_grid[y-1][0].type = Zombie;
+                    agent_grid[y-1][0].playable = 0x0;
                     turn++;
                     break;   
                 }
@@ -447,7 +453,7 @@ unsigned int movement(
             }
 
         case rdown: //right down mov
-        {printf("rdown");
+        {printf("rdown ");
             //if the entrance aren't in the last line and last column
             if ( ( y < WORLD_Y-1 && x < WORLD_X-1 ) &&
             	(agent_grid[y+1][x+1].type == None ) ) 
@@ -529,7 +535,7 @@ unsigned int movement(
         }
 
         case lup: // left up mov
-        {printf("lup");
+        {printf("lup ");
             //if the entrance aren't in the first line and first column
             if ( (y >0 && x >0 ) && ( agent_grid[y-1][x-1].type == None ) ) 
             {
@@ -622,7 +628,7 @@ unsigned int movement(
         }
 
         case ldown: //left down mov
-        {printf("ldown");
+        {printf("ldown ");
             //if the entrance aren't in the last line and first column
             if ( ( y > 0 && x < WORLD_X-1 ) 
                 && ( agent_grid[y-1][x+1].type == None ) )
@@ -696,6 +702,7 @@ unsigned int movement(
         { 
         	printf("this key is invalid!\n\n");
             printf( "key ==> %d \n",key);
+            getchar();
         	agents_list[a] = rand_id; //return the agent id into the agents list.
           x=0; y=0;
             break;

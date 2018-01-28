@@ -4,10 +4,6 @@
 #define SHOWWORLD_H
 
 
-
-
-
- 
 /**
  * Enumeration which defines a type of agent so that the visualization code
  * knows what to display.
