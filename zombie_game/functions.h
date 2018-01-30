@@ -20,7 +20,7 @@ unsigned int movement(
    unsigned short round,
     unsigned int WORLD_X, unsigned int WORLD_Y);
  
-BOARD a_int (AGENT **agent_grid, unsigned int key);
+BOARD a_int ( unsigned int key);
 
 void free_agent_grid(unsigned int X, AGENT** agent_grid);
 
