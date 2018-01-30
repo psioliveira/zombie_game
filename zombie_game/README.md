@@ -1,40 +1,169 @@
-# Title of project
+# zombie_game
+segundo projecto de IC
+## Universidade Lusófona
+##### Licenciatura em Aplicações Multimédia e Videojogos | Introdução à Computação
 
-* Student name 1 - a0000001
-* Student name 2 - a0000002
-* Student name 3 - a0000003
+### 2º Projeto de Introdução à Computação 2017/2018
 
-## Our solution
+	Cristina Pietra nº a21701350
+	Pedro Siqueira nº a21705187
+  Sara ???
+	22 de Janeiro de 2018
 
-Here we'll describe our solution.
+#### 1. Introdução
 
-### Architecture
+Como segundo projecto da cadeira de Introdução à Computação foi proposta a implementação de um jogo/simulador, em linguagem C, no qual zombies perseguem humanos.
+Em grupos de dois ou três alunos, o material a entregar deve conter os ficheiros c. e os seus respectivos h., o ficheiro Doxyfile, o ficheiro .gitignore, a pasta escondida git. e o ficheiro README.md.
 
-Here we'll describe the architecture of our game, namely how the game was
-structured. A flow diagram would probably be nice.
+O jogo deve desenrolar-se numa grela 2D toroidal de dimensões X e Y e vizinhança de Moore. Em cada célula da grelha é apenas permitido um zombie ou um humano.
+A simulação inicia-se com nz zombies e nh humanos, fazendo um total de n (nz + nh) agentes. Os agentes aparecem de forma aleatória pela grelha.
 
-### Data structures
+De forma a tonar isto possível, o jogo deve corresponder aos seguintes parametros: 
 
-Brief description of the implemented data structures for this game.
 
-### Algorithms
+###### Regras
 
-Brief description of the algorithms developed for this game. Some very short
-and readable pseudo-code would be nice.
+* O jogo é turn-based e a cada turno os agente podem realizar uma acção;
+* Os humanos podem agir da seguinte forma: movimento;
+* Os zombies podem agir da seguinte forma: movimento ou infecção de humanos;
+* Os agentes podem movimentar-se para uma célula vazia numa vizinhança de Moore de raio 1;
+* A infecção de humanos só pode ocorrer quando um zombie está numa célula adjacente na vizinhança de Moore;
+* A ordem em que os agentes executam as suas acções é aleatória;
+* Os agentes podem ser controlados pelo computador ou podem ser controlados pelo jogador;
+* Se o agente for um zombie, infecta um humano ao mover-se para o local deste e se este humano for controlado pelo jogador, deixa de o ser, passando a ser controlado pelo computador;
+* O jogo termina quando deixarem de existir agentes humanos na grelha;
 
-## User guide
+###### Funcionamento
 
-Our game is very simple. Here we explain how to play it.
+* O programa deve aceitar como único parâmetro um ficheiro de configuração em formato INI4 com as especificações incluidas no projecto; 
+* A visualização do jogo deve ser feita através de uma biblioteca gráfica à escolha e deve obedecer à interface fornecida pelo ficheiro showworld.h.
 
-## Conclusions
+###### Modos de jogo
 
-What did we learn by developing this game?
+* Modo automático: Acontece quando não existem agentes controlados pelo jogador.
+* Modo interativo: Cada vez que um agente é controlado pelo jogador é chamado a agir, o programa espera o input do jogador. Quando deixam de existir agentes controlados pelo jogador, o programa entra em modo automático.
 
-## References
 
-* <a name="ref1">\[1\]</a> Pereira, A. (2017). C e Algoritmos, 2ª edição. Sílabo.
-* <a name="ref2">\[2\]</a> Reagan, P. (2014). [Game Programming in C with the
-Ncurses Library](https://www.viget.com/articles/game-programming-in-c-with-the-ncurses-library),
-Viget Labs.
-* <a name="ref3">\[3\]</a> [2D game development basics (2010)](https://stackoverflow.com/questions/3144399/2d-game-development-basics),
-stackoverflow.com
+![](./fluxograma.svg)
+
+
+#### 2. Descrição da solução
+
+O programa é dividido em 7 ficheiros (main.c, a_intelligence.c, free_agent_grid.c, functions.c, functions.h, showworld_simple.c, showworld.h).
+
+No ficheiro main.c (modificação do ficheiro fornecido pelo professor "example.c"), a estrutura que define as propriedades dos agentes (typedef struct AGENT) e a estrutura que define as propriedades do mundo (typedef struct WORLD) foram movidas para o ficheiro showworld.h.
+
+Foi criado um array de todos os números de ID presentes na grelha, para que seja possível gerar aleatoriamente uma ordem de movimento de todos os agentes por turno, sem que existam repetições.
+
+```c
+unsigned int *agents_list= NULL;
+
+    agents_list = (unsigned int*) calloc (WORLD_X*WORLD_Y,sizeof(unsigned int));
+```
+
+Número de agentes criados:
+
+```c
+unsigned int nagents = 0;
+unsigned int turns = 0;
+unsigned int a = 0;
+```
+
+Foram acrescentadas as seguintes linhas de código: 
+Função de update da grelha, que desenha o mundo inicial; 
+Função de movimento;
+Actualização do mundo, imprimindo-o novamente no canvas.
+
+```c
+showworld_update(sw, &my_world);
+movement(agent_grid, agents_list, nagents, turns);
+showworld_update(sw, &my_world);
+```
+
+Como fora previamente esclarecido, as estruturas AGENT e WORLD encontram-se agora no ficheiro showworld.h:
+
+```c
+typedef struct {
+    AGENT_TYPE type;        /**< Agent type.        */
+    unsigned char playable; /**< Is agent playable? */
+    unsigned short id;      /**< Agent ID.          */
+} AGENT;
+```
+
+
+```c
+typedef struct {
+    AGENT *grid;        /**< World is a grid composed of agents. */
+    unsigned int xsize; /**< Horizontal world size.              */
+    unsigned int ysize; /**< Vertical world size.                */
+} WORLD;
+```
+
+O motivo desta alteração permitiu o acesso a estas estruturas através dos outros ficheiros.
+
+No ficheiro free_agent_grid, temos a parte de alocação dinâmica de memória para o array agent_grid, assim como a liberação da memória.
+```c
+void free_agent_grid(unsigned int X, AGENT **agent_grid){
+
+
+	for (unsigned int i=0; i<X; i++)
+	{
+		free(agent_grid[i]);
+	}
+	free(agent_grid);
+}
+
+AGENT **create_agent_grid(unsigned int X ,unsigned int  Y, AGENT** agent_grid) 
+{
+/* A bi-dimensional array of agents, representing agents in a grid. */
+ 	agent_grid = malloc (Y * sizeof (AGENT *));
+
+	for (int i = 0; i < X; ++i)
+	{
+      	agent_grid[i] = calloc (X , sizeof (AGENT));
+ 	}
+ 	
+ 	return(agent_grid);
+} 
+```
+Foi utilizado um calloc para que a agent_grid fosse limpa quando inicializada.
+
+O ficheiro functions.c é responsável, principalmente, pela função de movimentação dos personagens e de infeção entre zombies e humans, ao modificar as entradas do array bidimensional Agent_grid.
+```c
+unsigned int movement(
+    AGENT **agent_grid,
+    unsigned short *agents_list,
+    unsigned short max_id, 
+    unsigned short round,
+unsigned int WORLD_X, unsigned int WORLD_Y) 
+```
+É inicializado seu protótipo no ficheiro functions.h.
+
+Para a movimentação do personagens na grelha, foi decidido pelo grupo utilizar o agent_grid como um  array multidimensional ao invés e um array simples, para que pudéssemos visualizar as esntradas como x,y mais facilmente.
+
+exemplo retirado do código:
+```c
+  //if the entrance are in the first line
+  	if((y == 0) && (agent_grid[x][WORLD_Y-1]).type == None)
+	{
+		AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+		AGENT hold_pos2 = agent_grid[x][WORLD_Y-1]; //hold blank value
+
+                /*Swich values between actual and blank values*/
+                agent_grid[x][WORLD_Y-1] = hold_pos;
+                agent_grid[x][y] = hold_pos2;  
+            	round++;
+                break;
+	}
+```
+Ao ficheiro Showworld_simple.c não foi feita nenhuma alteração significativa, alem de retirar algumas linhas vazias e alterar o pointer w.
+
+
+#### 4. Conclusão
+
+A realização deste projecto deixou-nos familiarizados com a linguagem C e permitiu-nos aplicar os conceitos dados em aula.
+
+#### 4. Referências
+
+Bibliotecas utilizadas: 
+
