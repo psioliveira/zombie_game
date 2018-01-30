@@ -17,6 +17,7 @@ unsigned int movement(
    AGENT **agent_grid,
    unsigned short *agent_list,
    unsigned short max_id,
+   unsigned short round,
     unsigned int WORLD_X, unsigned int WORLD_Y);
  
 BOARD a_int (AGENT **agent_grid, unsigned int key);
@@ -30,4 +31,4 @@ AGENT **create_agent_grid ( unsigned int X,
 
 
 
-#endif            
+#endif
