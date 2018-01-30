@@ -165,5 +165,5 @@ A realização deste projecto deixou-nos familiarizados com a linguagem C e perm
 
 #### 4. Referências
 
-Bibliotecas utilizadas: 
+Bibliotecas utilizadas: <stdio.h><stdlib.h><time.h>
 
