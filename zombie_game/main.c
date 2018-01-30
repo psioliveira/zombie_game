@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -35,11 +36,13 @@ int main() {
     unsigned int a = 0; //aux var
     unsigned int existe_human =0;
 
+//ini file
     unsigned int nzombies=20;
     unsigned int nhumans=20;
+
     unsigned int nzplayers=0;
     unsigned int nhplayers=1;
-
+//-----------------------------
     unsigned int nzp=0;
     unsigned int nhp=0;
 
