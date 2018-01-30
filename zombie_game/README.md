@@ -158,6 +158,7 @@ Exemplo retirado do código:
 ```
 Ao ficheiro Showworld_simple.c não foi feita nenhuma alteração significativa, alem de retirar algumas linhas vazias e alterar o pointer w.
 
+Para o fivheiro A_intelligence foi utilizado um random para o movimento dos NPCs a fim de sanar a falta da lógica solicitada, desta maneira se é possível manter os NPCs como se foi solicitado.
 
 #### 4. Conclusão
 
@@ -165,7 +166,8 @@ A realização deste projecto deixou-nos familiarizados com a linguagem C e perm
 
 #### 4. Referências
 
-Bibliotecas utilizadas: <stdio.h><stdlib.h><time.h>
+Bibliotecas utilizadas: <stdio.h><stdlib.h><time.h>.
+
 Sites de apoio:
 https://stackoverflow.com/questions/1538420/difference-between-malloc-and-calloc
 https://www.dcc.fc.up.pt/~nam/aulas/0001/pi/slides/slipi0010/node9.html
