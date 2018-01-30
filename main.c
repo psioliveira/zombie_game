@@ -2,10 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "functions.h"
 #include "showworld.h"
 
+  /** Horizontal world size. */
+ unsigned int WORLD_X = 15;
 
+ /** Vertical world size. */
+ unsigned int WORLD_Y = 15;
 
 /* This function is an implementation of the definition provided by the
  * ::get_agent_info_at() function pointer. It only works for AGENT and WORLD
@@ -22,32 +27,48 @@ unsigned int example_get_ag_info(void *world, unsigned int x, unsigned int y);
  * */
 int main() {
 
-  /** Horizontal world size. */
- unsigned int WORLD_X = 10;
 
- /** Vertical world size. */
- unsigned int WORLD_Y = 10;
+
+
+        /* Number of agents created so far. */
+    unsigned short nagents = 0;
+    unsigned int turn = 0, max_turn=0, round=0;
+    unsigned int a = 0; //aux var
+    unsigned int existe_human =0;
+
+
+    system("clear");
+    system("clear");
+    printf("Defina o tamanho do mundo (exemplo: 20 --> mundo 20x20):  ");
+    scanf(" %u", &WORLD_X);
+    getchar();
+    printf("Defina a quantidade de turnos:  ");
+    scanf(" %u", &max_turn);
+    getchar();
+
+    WORLD_Y = WORLD_X;
+
 
     /* An instance of a WORLD structure. */
     WORLD my_world;
 
     /* An instance of a SHOWWORLD world display. */
     SHOWWORLD *sw = NULL;
+
+   //Agent grid of the world
     AGENT **agent_grid = NULL;
     agent_grid = create_agent_grid(WORLD_X,WORLD_Y, agent_grid);
 
-    /**(edited by Pedro Oliveira)
+
+/**
     * An array of all  possible ID numbers in the main grid. Used for generate the random 
     * order of movement per turn of all agents without repetitions     
-    **/
-    unsigned int *agents_list= NULL;
+    **/ 
+    unsigned short *agents_list= NULL;
 
-    agents_list = (unsigned int*) calloc (WORLD_X*WORLD_Y,sizeof(unsigned int));
+    agents_list = (unsigned short*) calloc (WORLD_X*WORLD_Y,sizeof(unsigned short));
 
-    /* Number of agents created so far. */
-    unsigned int nagents = 0;
-    unsigned int turns = 0;
-    unsigned int a = 0;
+
 
     /* Initialize world display. */
     sw = showworld_new(WORLD_X, WORLD_Y, example_get_ag_info);
@@ -58,18 +79,18 @@ int main() {
     /* **************************************************************** */
     /* Cycle through all cells in grid and randomly place agents in it. */
     /* **************************************************************** */
-    for (int i = 0; i < WORLD_X; ++i) {
-        for (int j = 0; j < WORLD_Y; ++j) {
+    for (unsigned int i = 0; i < WORLD_Y; ++i) {
+        for (unsigned int j = 0; j < WORLD_X; ++j) {
 
             /* Possible agent in grid. By default we assume there is none. */
             AGENT ag = {None, 0, 0};
 
             /* Obtain a probability between 0 and 99. */
-            unsigned char probability = rand() % 100;
+            unsigned int probability = (rand() % 100);
 
             /* There is 10% probability of creating an agent. */
             if (probability < 10) {
-
+               
                 /* If we got here, an agent will be placed at (i,j). */
 
                 /* Randomly define agent type. */
@@ -77,18 +98,20 @@ int main() {
 
                 /* Give 10% probablity of agent being playable by user. */
                 ag.playable = (rand() % 10 == 0);
+                
 
                 /* Assign agent ID and then increment number of agents so
                    far. */
-                 agents_list[a]= nagents;
+                ag.id = nagents;
+       
+                agents_list[a]= nagents;
                 a++;
-
-                ag.id = nagents++;
-
+                nagents++;
+                /* Assign possible agent to grid at (i,j). */
+                agent_grid[i][j] = ag;
             }
 
-            /* Assign possible agent to grid at (i,j). */
-            agent_grid[i][j] = ag;
+            
         }
     }
 
@@ -98,7 +121,7 @@ int main() {
 
     /* A bidimensional array of agents can be interpreted as a pointer to
        agents. */
-    my_world.grid = (AGENT *) agent_grid;
+    my_world.grid = (AGENT **) agent_grid;
 
     /* World size is defined by constants in this example. */
     my_world.xsize = WORLD_X;
@@ -108,9 +131,61 @@ int main() {
     /* Show world using the simple_show_world() function. This function can  */
     /* be used in the first part of the project.                             */
     /* ********************************************************************* */
-    showworld_update(sw, &my_world);
-    movement(agent_grid, agents_list, nagents, turns);
-    showworld_update(sw, &my_world);
+    system("clear");
+    showworld_update(sw, &(my_world));
+
+do {
+    do { 
+        round = movement(agent_grid, agents_list, nagents, round, WORLD_X, WORLD_Y);
+        showworld_update(sw, &(my_world));
+        printf("round :%u ,turn: %u nagents: %u  \n\n",round, turn, nagents);
+    } while (round != nagents);
+    turn++;
+    round=0;
+
+    //replace the list of agents ID for the next turn
+    a = 0;
+    for (unsigned int i = 0; i < WORLD_Y; ++i)
+    {
+        for (unsigned int j = 0; j < WORLD_X; ++j)
+        {
+            if (agent_grid[i][j].type !=None || agent_grid[i][j].type != Unknown )
+            {   
+                if(agent_grid[i][j].type ==Human)
+                {
+                    existe_human =1; //search one human in the grid
+                }
+                agents_list[a]= agent_grid[i][j].id;
+                a ++;    
+            }   
+        }
+    }
+    if(existe_human ==0) //if don't exists humans anymore
+    {
+        printf("Zombies win!!!\n");
+        break; //end game, zombies win
+    }
+    else {existe_human =0;}
+
+} while (turn != max_turn);
+
+
+for (unsigned int i = 0; i < WORLD_Y; ++i)
+    {
+        for (unsigned int j = 0; j < WORLD_X; ++j)
+        {   
+            if(agent_grid[i][j].type ==Human)
+            {
+                existe_human =1; //search one human in the grid
+            }
+   
+        }   
+    }
+    if(existe_human ==1) //if exists humans yet
+    {
+        printf("Humans win!!!\n");
+    }
+    
     /* Before finishing, ask user to press ENTER. */
     printf("end game!!\n");
     printf("Press ENTER to continue...");
@@ -118,7 +193,7 @@ int main() {
 
     /* Destroy world display. */
     showworld_destroy(sw);
-
+    free_agent_grid(WORLD_X, agent_grid);
     /* Bye. */
     return 0;
 }
@@ -167,7 +242,7 @@ unsigned int example_get_ag_info(void *w, unsigned int x, unsigned int y) {
            agent information. */
 
         /* Obtain agent at specified coordinates. */
-        AGENT ag = my_world->grid[x * my_world->xsize + y];
+        AGENT ag = my_world->grid[x][y];
 
         /* Is there an agent at (x,y)? */
         if (ag.type == None) {
