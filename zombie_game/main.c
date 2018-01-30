@@ -1,4 +1,8 @@
-
+/* programa feito por:
+Cristina Pietra nº a21701350
+Pedro Siqueira nº a21705187
+Sara nº a21705494
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
