@@ -3,10 +3,10 @@
 #include "functions.h"
 
 
-void free_agent_grid(unsigned int WORLD_X, AGENT **agent_grid){
+void free_agent_grid(unsigned int X, AGENT **agent_grid){
 
 
-	for (unsigned int i=0; i<WORLD_X; i++)
+	for (unsigned int i=0; i<X; i++)
 	{
 		free(agent_grid[i]);
 	}
@@ -20,7 +20,7 @@ AGENT **create_agent_grid(unsigned int X ,unsigned int  Y, AGENT** agent_grid)
 
 	for (int i = 0; i < X; ++i)
 	{
-      	agent_grid[i] = malloc (X * sizeof (AGENT));
+      	agent_grid[i] = calloc (X , sizeof (AGENT));
  	}
  	
  	return(agent_grid);
