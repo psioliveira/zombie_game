@@ -48,7 +48,7 @@ void showworld_destroy(SHOWWORLD *sw) {
  *
  * This function obeys the `showworld_update()` prototype defined in
  * `showworld.h`. */
-void showworld_update(SHOWWORLD *sw, void *w) {
+void showworld_update(SHOWWORLD *sw, WORLD *w) {
 
     printf("\n");
 
@@ -82,7 +82,7 @@ void showworld_update(SHOWWORLD *sw, void *w) {
                     if (playable) {
                         /* Uppercase 'H' for player-controlled human agent. */
                         printf("H");
-                    } else {
+                    } else if (!playable) {
                         /* Lowercase 'h' for AI-controlled human agent. */
                         printf("h");
                     }
