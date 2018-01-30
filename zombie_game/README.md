@@ -126,9 +126,9 @@ AGENT **create_agent_grid(unsigned int X ,unsigned int  Y, AGENT** agent_grid)
  	return(agent_grid);
 } 
 ```
-Foi utilizado um calloc para que a agent_grid fosse limpa quando inicializada.
+Foi utilizado um calloc para que o agent_grid fosse limpa quando inicializada.
 
-O ficheiro functions.c é responsável, principalmente, pela função de movimentação dos personagens e de infeção entre zombies e humans, ao modificar as entradas do array bidimensional Agent_grid.
+O ficheiro functions.c é responsável, principalmente, pela função de movimentação das personagens e de infecção entre zombies e humanos, ao modificar as entradas do array bidimensional Agent_grid.
 ```c
 unsigned int movement(
     AGENT **agent_grid,
@@ -137,11 +137,11 @@ unsigned int movement(
     unsigned short round,
 unsigned int WORLD_X, unsigned int WORLD_Y) 
 ```
-É inicializado seu protótipo no ficheiro functions.h.
+É inicializado o seu protótipo no ficheiro functions.h.
 
-Para a movimentação do personagens na grelha, foi decidido pelo grupo utilizar o agent_grid como um  array multidimensional ao invés e um array simples, para que pudéssemos visualizar as esntradas como x,y mais facilmente.
+Para a movimentação das personagens na grelha, foi decidido pelo grupo utilizar o agent_grid como um array multidimensional e um array simples, para que pudéssemos visualizar as entradas como x,y mais facilmente.
 
-exemplo retirado do código:
+Exemplo retirado do código:
 ```c
   //if the entrance are in the first line
   	if((y == 0) && (agent_grid[x][WORLD_Y-1]).type == None)
