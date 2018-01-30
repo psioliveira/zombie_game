@@ -101,6 +101,62 @@ typedef struct {
 
 O motivo desta alteração permitiu o acesso a estas estruturas através dos outros ficheiros.
 
+No ficheiro free_agent_grid, temos a parte de alocação dinâmica de memória para o array agent_grid, assim como a liberação da memória.
+```c
+void free_agent_grid(unsigned int X, AGENT **agent_grid){
+
+
+	for (unsigned int i=0; i<X; i++)
+	{
+		free(agent_grid[i]);
+	}
+	free(agent_grid);
+}
+
+AGENT **create_agent_grid(unsigned int X ,unsigned int  Y, AGENT** agent_grid) 
+{
+/* A bi-dimensional array of agents, representing agents in a grid. */
+ 	agent_grid = malloc (Y * sizeof (AGENT *));
+
+	for (int i = 0; i < X; ++i)
+	{
+      	agent_grid[i] = calloc (X , sizeof (AGENT));
+ 	}
+ 	
+ 	return(agent_grid);
+} 
+```
+Foi utilizado um calloc para que a agent_grid fosse limpa quando inicializada.
+
+O ficheiro functions.c é responsável, principalmente, pela função de movimentação dos personagens e de infeção entre zombies e humans, ao modificar as entradas do array bidimensional Agent_grid.
+```c
+unsigned int movement(
+    AGENT **agent_grid,
+    unsigned short *agents_list,
+    unsigned short max_id, 
+    unsigned short round,
+unsigned int WORLD_X, unsigned int WORLD_Y) 
+```
+É inicializado seu protótipo no ficheiro functions.h.
+
+Para a movimentação do personagens na grelha, foi decidido pelo grupo utilizar o agent_grid como um  array multidimensional ao invés e um array simples, para que pudéssemos visualizar as esntradas como x,y mais facilmente.
+
+exemplo retirado do código:
+```c
+  //if the entrance are in the first line
+  	if((y == 0) && (agent_grid[x][WORLD_Y-1]).type == None)
+	{
+		AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+		AGENT hold_pos2 = agent_grid[x][WORLD_Y-1]; //hold blank value
+
+                /*Swich values between actual and blank values*/
+                agent_grid[x][WORLD_Y-1] = hold_pos;
+                agent_grid[x][y] = hold_pos2;  
+            	round++;
+                break;
+	}
+```
+Ao ficheiro Showworld_simple.c não foi feita nenhuma alteração significativa, alem de retirar algumas linhas vazias e alterar o pointer w.
 
 
 #### 4. Conclusão
