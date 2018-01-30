@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -30,11 +29,19 @@ int main() {
 
 
 
-        /* Number of agents created so far. */
+    /* Number of agents created so far. */
     unsigned short nagents = 0;
     unsigned int turn = 0, max_turn=0, round=0;
     unsigned int a = 0; //aux var
     unsigned int existe_human =0;
+
+    unsigned int nzombies=20;
+    unsigned int nhumans=20;
+    unsigned int nzplayers=0;
+    unsigned int nhplayers=1;
+
+    unsigned int nzp=0;
+    unsigned int nhp=0;
 
 
     system("clear");
@@ -79,41 +86,93 @@ int main() {
     /* **************************************************************** */
     /* Cycle through all cells in grid and randomly place agents in it. */
     /* **************************************************************** */
+
     for (unsigned int i = 0; i < WORLD_Y; ++i) {
         for (unsigned int j = 0; j < WORLD_X; ++j) {
 
             /* Possible agent in grid. By default we assume there is none. */
             AGENT ag = {None, 0, 0};
+            agent_grid[i][j] = ag;
 
-            /* Obtain a probability between 0 and 99. */
-            unsigned int probability = (rand() % 100);
-
-            /* There is 10% probability of creating an agent. */
-            if (probability < 10) {
-               
-                /* If we got here, an agent will be placed at (i,j). */
-
-                /* Randomly define agent type. */
-                ag.type = (rand() % 2 == 0) ? Human : Zombie;
-
-                /* Give 10% probablity of agent being playable by user. */
-                ag.playable = (rand() % 10 == 0);
-                
-
-                /* Assign agent ID and then increment number of agents so
-                   far. */
-                ag.id = nagents;
-       
-                agents_list[a]= nagents;
-                a++;
-                nagents++;
-                /* Assign possible agent to grid at (i,j). */
-                agent_grid[i][j] = ag;
-            }
-
-            
         }
     }
+    int ZH= (rand() % 2);
+switch(ZH)
+{
+    case 0: 
+    {
+        for (unsigned int i = 0; i < WORLD_Y; ++i) {
+            for (unsigned int j = 0; j < WORLD_X; ++j) {
+      
+
+                /* Obtain a probability between 0 and 99. */
+                unsigned int probability = (rand() % 100);
+
+                /* There is 10% probability of creating an agent. */
+                if (probability < 10 && agent_grid[i][j].type==None) 
+                {
+               
+                    /* If we got here, an agent will be placed at (i,j). */
+
+                    /* Randomly define agent type. */
+                    agent_grid[i][j].type = Human ;
+
+                
+                    if (nhp< nhplayers)
+                    /* Give 10% probablity of agent being playable by user. */
+                    agent_grid[i][j].playable = (rand() % 10 == 0);
+                
+                    if (agent_grid[i][j].playable==1) { nhp++; }
+
+                    /* Assign agent ID and then increment number of agents so
+                       far. */
+                    agents_list[a]= nagents;
+                    a++;
+                    nagents++;
+                }
+            }
+        }
+    }
+
+    case 1:
+    {
+        for (unsigned int i = 0; i < WORLD_Y; ++i) {
+            for (unsigned int j = 0; j < WORLD_X; ++j) {
+       
+    
+                /* Obtain a probability between 0 and 99. */
+                unsigned int probability = (rand() % 100);
+    
+                /* There is 10% probability of creating an agent. */
+                if (probability < 10 && agent_grid[i][j].type==None)
+                {
+                   
+                    /* If we got here, an agent will be placed at (i,j). */
+    
+                    /* Randomly define agent type. */
+                    agent_grid[i][j].type = Zombie ;
+    
+                    
+                    if (nzp< nzplayers)
+                    {
+                        /* Give 10% probablity of agent being playable by user. */
+                        agent_grid[i][j].playable = (rand() % 10 == 0);
+                    }
+
+                    if (agent_grid[i][j].playable==1) { nzp++; }
+    
+                    /* Assign agent ID and then increment number of agents so
+                       far. */
+                    agents_list[a]= nagents;
+                    a++;
+                    nagents++;   
+                }    
+            }
+        }
+    }
+}
+
+
 
     /* ******************************* */
     /* Populate the my_world variable. */
