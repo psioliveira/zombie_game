@@ -87,13 +87,10 @@ unsigned int movement(
         printf( "NPC!!! \n");
         printf("x:%u, y:%u ID %.2x \n",x, y, rand_id);
         printf("walk: ");
-            
-        key= getchar();
-        getchar();
-        /*
+
         key= a_int();
         printf("(press enter to continue)");
-        */
+        getchar();
     }
 
 
