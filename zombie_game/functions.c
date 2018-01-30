@@ -250,7 +250,7 @@ unsigned int movement(
                         
             }
             //if the entrance are in the last line
-            else if((y == WORLD_Y-1 ) && (agent_grid[x][0]).type == None)
+            if((y == WORLD_Y-1 ) && (agent_grid[x][0]).type == None)
             {
                 AGENT hold_pos = agent_grid[x][y]; //hold actual local value
                 AGENT hold_pos2 = agent_grid[x][0]; //hold blank value
@@ -267,7 +267,7 @@ unsigned int movement(
                    			* infect humans *
                    			****************/
             //if the entrance aren't in the first line
-            else if ((y > WORLD_X-1) && (agent_grid[x][y]).type == Zombie 
+            if ((y < WORLD_Y-1) && (agent_grid[x][y]).type == Zombie 
             					&& (agent_grid[x][y+1]).type == Human) 
             {
                 /*Swich the value of Human to Zombie*/
@@ -279,7 +279,7 @@ unsigned int movement(
             }
 
             //if the entrance are in the first line
-            else if ((y == WORLD_Y-1 ) && (agent_grid[x][y]).type == Zombie 
+            if ((y == WORLD_Y-1 ) && (agent_grid[x][y]).type == Zombie 
             					  && (agent_grid[x][0]).type == Human)
             {
                 /*Swich the value of Human to Zombie*/
@@ -891,7 +891,7 @@ unsigned int movement(
         	printf("this key is invalid!\n\n");
             printf( "key ==> %d \n",key);
             getchar();
-        	agents_list[a] = rand_id; //return the agent id into the agents list.
+        	agents_list[a] = rand_id; //reround the agent id into the agents list.
           x=0; y=0;
             break;
         }
