@@ -3,6 +3,7 @@
 #ifndef SHOWWORLD_H
 #define SHOWWORLD_H
 
+
 /**
  * Enumeration which defines a type of agent so that the visualization code
  * knows what to display.
@@ -11,7 +12,7 @@ typedef enum {
     None    = 0x0, /**< No agent present.     */
     Human   = 0x1, /**< Human agent present.  */
     Zombie  = 0x2, /**< Zombie agent present. */
-    Unknown = 0x3  /**< Zombie agent present. */
+    Unknown = 0x3  /**< Unknown agent present. */
 } AGENT_TYPE;
 
 /**
@@ -35,7 +36,7 @@ typedef struct {
  * ::get_agent_info_at() and agent/world data structures.
  * */
 typedef struct {
-    AGENT *grid;        /**< World is a grid composed of agents. */
+    AGENT **grid;        /**< World is a grid composed of agents. */
     unsigned int xsize; /**< Horizontal world size.              */
     unsigned int ysize; /**< Vertical world size.                */
 } WORLD;
@@ -93,6 +94,6 @@ void showworld_destroy(SHOWWORLD *sw);
  * @param sw Display object.
  * @param w World object (should be defined by each project group).
  * */
-void showworld_update(SHOWWORLD *sw, void *w);
+void showworld_update(SHOWWORLD *sw, WORLD *w);
 
 #endif
