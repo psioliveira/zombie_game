@@ -27,11 +27,25 @@ unsigned int example_get_ag_info(void *world, unsigned int x, unsigned int y);
  * */
 int main() {
 
+
+
+
+        /* Number of agents created so far. */
+    unsigned short nagents = 0;
+    unsigned int turn = 0, max_turn=0, round=0;
+    unsigned int a = 0; //aux var
+    unsigned int existe_human =0;
+
+
     system("clear");
     system("clear");
     printf("Defina o tamanho do mundo (exemplo: 20 --> mundo 20x20):  ");
     scanf(" %u", &WORLD_X);
-    int trash = getchar();
+    getchar();
+    printf("Defina a quantidade de turnos:  ");
+    scanf(" %u", &max_turn);
+    getchar();
+
     WORLD_Y = WORLD_X;
 
 
@@ -41,7 +55,7 @@ int main() {
     /* An instance of a SHOWWORLD world display. */
     SHOWWORLD *sw = NULL;
 
-   
+   //Agent grid of the world
     AGENT **agent_grid = NULL;
     agent_grid = create_agent_grid(WORLD_X,WORLD_Y, agent_grid);
 
@@ -54,10 +68,7 @@ int main() {
 
     agents_list = (unsigned short*) calloc (WORLD_X*WORLD_Y,sizeof(unsigned short));
 
-    /* Number of agents created so far. */
-    unsigned short nagents = 0;
-    unsigned int turn = 1;
-    unsigned int a = 0; //aux var
+
 
     /* Initialize world display. */
     sw = showworld_new(WORLD_X, WORLD_Y, example_get_ag_info);
@@ -123,10 +134,58 @@ int main() {
     system("clear");
     showworld_update(sw, &(my_world));
 
-do{ 
-    turn = movement(agent_grid, agents_list, nagents, WORLD_X, WORLD_Y);
-    showworld_update(sw, &(my_world));
-}while(turn != nagents);
+do {
+    do { 
+        round = movement(agent_grid, agents_list, nagents, round, WORLD_X, WORLD_Y);
+        showworld_update(sw, &(my_world));
+        printf("round :%u ,turn: %u nagents: %u  \n\n",round, turn, nagents);
+    } while (round != nagents);
+    turn++;
+    round=0;
+
+    //replace the list of agents ID for the next turn
+    a = 0;
+    for (unsigned int i = 0; i < WORLD_Y; ++i)
+    {
+        for (unsigned int j = 0; j < WORLD_X; ++j)
+        {
+            if (agent_grid[i][j].type !=None || agent_grid[i][j].type != Unknown )
+            {   
+                if(agent_grid[i][j].type ==Human)
+                {
+                    existe_human =1; //search one human in the grid
+                }
+                agents_list[a]= agent_grid[i][j].id;
+                a ++;    
+            }   
+        }
+    }
+    if(existe_human ==0) //if don't exists humans anymore
+    {
+        printf("Zombies win!!!\n");
+        break; //end game, zombies win
+    }
+    else {existe_human =0;}
+
+} while (turn != max_turn);
+
+
+for (unsigned int i = 0; i < WORLD_Y; ++i)
+    {
+        for (unsigned int j = 0; j < WORLD_X; ++j)
+        {   
+            if(agent_grid[i][j].type ==Human)
+            {
+                existe_human =1; //search one human in the grid
+            }
+   
+        }   
+    }
+    if(existe_human ==1) //if exists humans yet
+    {
+        printf("Humans win!!!\n");
+    }
+    
     /* Before finishing, ask user to press ENTER. */
     printf("end game!!\n");
     printf("Press ENTER to continue...");
@@ -134,7 +193,7 @@ do{
 
     /* Destroy world display. */
     showworld_destroy(sw);
-
+    free_agent_grid(WORLD_X, agent_grid);
     /* Bye. */
     return 0;
 }
