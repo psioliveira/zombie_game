@@ -3,10 +3,10 @@
 
 #include "functions.h"
 #include "showworld.h"
-#include "a_intelligence.h"
 
 
-BOARD art_int (AGENT **agent_grid, unsigned int key){
+
+BOARD a_int (AGENT **agent_grid, unsigned int key){
 
 
 return key;
