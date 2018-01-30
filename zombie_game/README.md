@@ -7,7 +7,7 @@ segundo projecto de IC
 
 	Cristina Pietra nº a21701350
 	Pedro Siqueira nº a21705187
-  	Sara nº a158801113
+  	Sara nº a21705494
 	22 de Janeiro de 2018
 
 #### 1. Introdução
