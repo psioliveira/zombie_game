@@ -12,12 +12,13 @@ unsigned int movement(
     AGENT **agent_grid,
     unsigned short *agents_list,
     unsigned short max_id, 
+    unsigned short round,
     unsigned int WORLD_X, unsigned int WORLD_Y) 
 {
 	
 	unsigned int x=0, y=0, a=0;
     unsigned int rand_id = 0;
-    unsigned int turn=0;
+    
 
     //auxiliar flags
     unsigned int flag =0, c_id=0;
@@ -34,7 +35,7 @@ unsigned int movement(
 
         /* generates a random id number to choose 
         the agent who will move */
-        rand_id = (rand() % max_id+1);
+        rand_id = (rand() % (max_id+1) );
 
         //loop to search the ID in agents string.
         for (int a = 0 ; a < max_id ; a++)
@@ -51,13 +52,13 @@ unsigned int movement(
     } while (flag!=1);
 
 
-//search the agent in the grid
-    for( x=0; x<WORLD_X;x++)
+    //search the agent in the grid
+    for( y=0; y<WORLD_Y;y++)
     {
-        for( y=0; y<WORLD_Y;y++)
+        for( x=0; x<WORLD_X;x++)
         {
-           if(agent_grid[y][x].id == rand_id)
-             {
+           if(agent_grid[x][y].id == rand_id && agent_grid[x][y].type !=None)
+            {
                  c_id=1;
                 break;
             }
@@ -73,23 +74,26 @@ unsigned int movement(
 
 
 
-    if(agent_grid[y][x].playable )
-    {   printf("Player ");
-        printf("ID %.2x   ", rand_id);
+    if(agent_grid[x][y].playable )
+    {   
+        printf( "Player!!! \n");
+        printf("x:%u, y:%u ID %.2x \n",x, y, rand_id);
         printf("walk: ");
         key= getchar(); 
-        int trash= getchar(); 
+        getchar(); 
     }
-    else if (!(agent_grid[y][x].playable)) 
-    {
-        printf( "NPC!!!   ");
-        printf("y:%u,x:%u\n",y,x);
-        printf("ID %.2x   ", rand_id);
+    else if (!(agent_grid[x][y].playable)) 
+    {   
+        printf( "NPC!!! \n");
+        printf("x:%u, y:%u ID %.2x \n",x, y, rand_id);
         printf("walk: ");
             
         key= getchar();
-    int trash= getchar();
-        // a_int();
+        getchar();
+        /*
+        key= a_int();
+        printf("(press enter to continue)");
+        */
     }
 
 
@@ -99,29 +103,30 @@ unsigned int movement(
     {
         case up: //left mov 
         {printf("up");
+        
             //if the entrance aren't in the first line
-            if ((x > 0) && (agent_grid[y][x-1]).type == None) 
+            if ((y > 0) && (agent_grid[x][y-1]).type == None) 
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y][x-1]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x][y-1]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[y][x-1] = hold_pos;
-                agent_grid[y][x] = hold_pos2;  
-                turn++;
+                agent_grid[x][y-1] = hold_pos;
+                agent_grid[x][y] = hold_pos2;  
+                round++;
                 break;
             }
 
              //if the entrance are in the first line
-            else if((x == 0) && (agent_grid[WORLD_X-1][y]).type == None)
+            if((y == 0) && (agent_grid[x][WORLD_Y-1]).type == None)
             {
                 AGENT hold_pos = agent_grid[x][y]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[WORLD_X-1][y]; //hold blank value
+                AGENT hold_pos2 = agent_grid[x][WORLD_Y-1]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[WORLD_X-1][y] = hold_pos;
+                agent_grid[x][WORLD_Y-1] = hold_pos;
                 agent_grid[x][y] = hold_pos2;  
-            	turn++;
+            	round++;
                 break;
             }
 
@@ -129,30 +134,31 @@ unsigned int movement(
 				* infect humans *
 				****************/
             //if the entrance aren't in the first column
-            else if ((x > 0) && (agent_grid[x][y]).type == Zombie 
-                    	&& (agent_grid[x-1][y]).type == Human) 
+            if ((y > 0) && (agent_grid[x][y]).type == Zombie 
+                    	&& (agent_grid[x][y-1]).type == Human) 
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[x-1][y].type = Zombie;
-                agent_grid[x-1][y].playable = 0x0;
-                turn++;
+                agent_grid[x][y-1].type = Zombie;
+                agent_grid[x][y-1].playable = 0x0;
+                round++;
                 break;
-                }
+            }
 
             //if the entrance are in the first column
-            else if ((x == 0) && (agent_grid[x][y]).type == Zombie 
-            			 && (agent_grid[WORLD_X-1][y]).type == Human)
+            else if ((y == 0) && (agent_grid[x][y]).type == Zombie 
+            			 && (agent_grid[x][WORLD_Y-1]).type == Human)
             {
                 /*Swich the value of Human to Zombie*/
-               agent_grid[y][WORLD_X-1].type = Zombie;
-                agent_grid[y][WORLD_X-1].playable = 0x0;
-                turn++;
+               agent_grid[x][WORLD_Y-1].type = Zombie;
+                agent_grid[x][WORLD_Y-1].playable = 0x0;
+                round++;
                 break;
             }
 
             else 
             {
-               printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
             
             x=0; y=0;
@@ -165,29 +171,29 @@ unsigned int movement(
         {printf("right ");
 
         	//if the entrance are in the first line
-            if ((y < WORLD_Y-1) && (agent_grid[y+1][x]).type == None) 
+            if ((x < WORLD_X-1) && (agent_grid[x+1][y]).type == None) 
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y+1][x]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x+1][y]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[y][x] = hold_pos2;
-                agent_grid[y+1][x] = hold_pos;  
-                turn++;
+                agent_grid[x][y] = hold_pos2;
+                agent_grid[x+1][y] = hold_pos;  
+                round++;
                 break;       
             }
 
 
             //if the entrance are in the last line
-            else if((y == WORLD_Y-1 ) && (agent_grid[0][x]).type == None)
+            else if((x == WORLD_X-1 ) && (agent_grid[0][y]).type == None)
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[0][x]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[0][y]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[0][x] = hold_pos;
-                agent_grid[y][x] = hold_pos2;  
-                turn++;
+                agent_grid[0][y] = hold_pos;
+                agent_grid[x][y] = hold_pos2;  
+                round++;
                 break;       
             }
 				
@@ -196,30 +202,31 @@ unsigned int movement(
 			****************/
 
             //if the entrance aren't in the first column
-            else if ((x < WORLD_X-1) && (agent_grid[y][x]).type == Zombie 
-            					&& (agent_grid[y+1][x]).type == Human) 
+            if (( x < WORLD_X-1 ) && (agent_grid[x][y]).type == Zombie 
+            					       && (agent_grid[x+1][y]).type == Human) 
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y+1][x].type = Zombie;
-                agent_grid[y+1][x].playable = 0x0;
-                turn++;
+                agent_grid[x+1][y].type = Zombie;
+                agent_grid[x+1][y].playable = 0x0;
+                round++;
                 break;       
             }
 
             //if the entrance are in the last line
-            else if ((y == WORLD_Y-1 ) && (agent_grid[y][x]).type == Zombie 
-            					  && (agent_grid[0][x]).type == Human)
+            if ((x == WORLD_X-1 ) && (agent_grid[x][y]).type == Zombie 
+            					       && (agent_grid[0][y]).type == Human)
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[0][x].type = Zombie;
-                agent_grid[0][x].playable = 0x0;
-                turn++;
+                agent_grid[0][y].type = Zombie;
+                agent_grid[0][y].playable = 0x0;
+                round++;
                 break;
                         
             }
             else
             {
-               printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
             
             x=0; y=0;
@@ -230,28 +237,28 @@ unsigned int movement(
         {printf("down ");
 
             //if the entrance aren't in the last line
-            if (x < WORLD_X-1 && agent_grid[y][x+1].type == None) 
+            if (y < WORLD_Y-1 && agent_grid[x][y+1].type == None) 
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y][x+1]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x][y+1]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[y][x+1] = hold_pos;
-                agent_grid[y][x] = hold_pos2;
-                turn++;
+                agent_grid[x][y+1] = hold_pos;
+                agent_grid[x][y] = hold_pos2;
+                round++;
                 break;
                         
             }
-                     //if the entrance are in the last column
-            else if((x == WORLD_X-1 ) && (agent_grid[y][0]).type == None)
+            //if the entrance are in the last line
+            else if((y == WORLD_Y-1 ) && (agent_grid[x][0]).type == None)
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y][0]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x][0]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[y][0] = hold_pos;
-                agent_grid[y][x] = hold_pos2; 
-                turn++;
+                agent_grid[x][0] = hold_pos;
+                agent_grid[x][y] = hold_pos2; 
+                round++;
                 break;
                         
             }
@@ -259,32 +266,33 @@ unsigned int movement(
                    			/****************
                    			* infect humans *
                    			****************/
-            //if the entrance aren't in the first column
-            else if ((x > WORLD_X-1) && (agent_grid[y][x]).type == Zombie 
-            					&& (agent_grid[y][x+1]).type == Human) 
+            //if the entrance aren't in the first line
+            else if ((y > WORLD_X-1) && (agent_grid[x][y]).type == Zombie 
+            					&& (agent_grid[x][y+1]).type == Human) 
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y][x+1].type = Zombie;
-                agent_grid[y][x+1].playable = 0x0;
-                turn++;
+                agent_grid[x][y+1].type = Zombie;
+                agent_grid[x][y+1].playable = 0x0;
+                round++;
                 break;
                         
             }
 
-            //if the entrance are in the first column
-            else if ((x == WORLD_X-1 ) && (agent_grid[y][x]).type == Zombie 
-            					  && (agent_grid[y][0]).type == Human)
+            //if the entrance are in the first line
+            else if ((y == WORLD_Y-1 ) && (agent_grid[x][y]).type == Zombie 
+            					  && (agent_grid[x][0]).type == Human)
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y][0].type = Zombie;
-                agent_grid[y][0].playable = 0x0;
-                turn++;
+                agent_grid[x][0].type = Zombie;
+                agent_grid[x][0].playable = 0x0;
+                round++;
                 break;
                        
             }
             else
             {
-               printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
             
             x=0; y=0;
@@ -295,30 +303,30 @@ unsigned int movement(
         {  printf("left "); 
 
             //if the entrance aren't in the first column
-            if (y > 0 && (agent_grid[y-1][x]).type == None) 
+            if (x > 0 && (agent_grid[x-1][y]).type == None) 
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y-1][x]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x-1][y]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[y-1][x] = hold_pos;
-                agent_grid[y][x] = hold_pos2; 
-                turn++;
+                agent_grid[x-1][y] = hold_pos;
+                agent_grid[x][y] = hold_pos2; 
+                round++;
                 break;
-                      
+                
             }
 
 
             //if the entrance are in the first column
-            else if((y == 0 ) && (agent_grid[WORLD_Y-1][x]).type == None)
+            else if((x == 0 ) && (agent_grid[WORLD_X-1][y]).type == None)
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[WORLD_Y-1][x]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[WORLD_X-1][y]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[WORLD_Y-1][x] = hold_pos;
-                agent_grid[y][x] = hold_pos2;  
-                turn++;
+                agent_grid[WORLD_X-1][y] = hold_pos;
+                agent_grid[x][y] = hold_pos2;  
+                round++;
                 break;      
             }
                 
@@ -326,29 +334,30 @@ unsigned int movement(
                             * infect humans *
                    			*****************/
             //if the entrance aren't in the first column
-            else if ((y > 0 )&& (agent_grid[y][x]).type == Zombie 
-     	  			&& (agent_grid[y-1][x]).type == Human) 
+            else if ((x > 0 )&& (agent_grid[x][y]).type == Zombie 
+     	  			&& (agent_grid[x-1][y]).type == Human) 
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y-1][x].type = Zombie;
-                agent_grid[y-1][x].playable = 0x0;
-                turn++;
+                agent_grid[x-1][y].type = Zombie;
+                agent_grid[x-1][y].playable = 0x0;
+                round++;
                 break;       
             }
 
             //if the entrance are in the first column
-            else if ((y == 0 ) && (agent_grid[y][x]).type == Zombie 
-            			  && (agent_grid[WORLD_Y-1][x]).type == Human)
+            else if ((x == 0 ) && (agent_grid[x][y]).type == Zombie 
+            			  && (agent_grid[WORLD_X-1][y]).type == Human)
             {
             /*Swich the value of Human to Zombie*/
-                agent_grid[y+1][x].type = Zombie;
-                agent_grid[y+1][x].playable = 0x0;
-                turn++;
+                agent_grid[WORLD_X-1][y].type = Zombie;
+                agent_grid[WORLD_X-1][y].playable = 0x0;
+                round++;
                 break;        
             }
             else
             {
-                printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
             
             x=0; y=0;
@@ -360,174 +369,257 @@ unsigned int movement(
 
     	   //if the entrance aren't in the last line and first column
             if ((x < WORLD_X-1) && (y > 0) &&
-    	      (agent_grid[y+1][x-1]).type == None) 
+    	      (agent_grid[x+1][y-1].type == None)) 
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y+1][x-1]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x+1][y-1]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[y][x] = hold_pos2;
-                agent_grid[y+1][x-1] = hold_pos; 
-                turn++;
+                agent_grid[x][y] = hold_pos2;
+                agent_grid[x+1][y-1] = hold_pos; 
+                round++;
                 break;       
             }
 
-             //if the entrance are in the last column 
-            else if  (y == 0)
+             //if the entrance are in the first line
+            if  (y == 0)
             {
+                //and  in the first column
                 if((x == WORLD_X-1 ) && (agent_grid[WORLD_Y-1][0].type == None) )
                 {
-                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
                     AGENT hold_pos2 = agent_grid[WORLD_X-1][0]; //hold blank value
     
                     /*Swich values between actual and blank values*/
                     agent_grid[WORLD_X-1][0] = hold_pos;
-                    agent_grid[y][x] = hold_pos2;  
-                    turn++;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
                     break;        
                 }
 
-                 if((x != WORLD_X-1 ) && (agent_grid[y+1][0].type == None) )
+                //and aren't in the last column
+                if((x != WORLD_X-1 ) && (agent_grid[x+1][WORLD_Y-1].type == None) )
                 {
-                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                    AGENT hold_pos2 = agent_grid[y+1][0]; //hold blank value
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[x+1][WORLD_Y-1]; //hold blank value
     
                     /*Swich values between actual and blank values*/
-                    agent_grid[y+1][0] = hold_pos;
-                    agent_grid[y][x] = hold_pos2;  
-                    turn++;
+                    agent_grid[x+1][WORLD_Y-1] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
                     break;        
                 }
 
-
 			}	
+
+            //if the entrance are in the first column and aren't in the first line
+            if( ((x == WORLD_X-1 )&&(y != 0)) && (agent_grid[0][y-1].type == None) )
+            {
+
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[0][y-1]; //hold blank value
+
+                /*Swich values between actual and blank values*/
+                agent_grid[0][y-1] = hold_pos;
+                agent_grid[x][y] = hold_pos2;  
+                round++;
+                break;
+
+            }
+
+
+
                 				/****************
                 				* infect humans *
                 				****************/
-            //if the entrance aren't in thelast line and first column
-            if ((x < WORLD_X-1) && (y > 0) 
-            		&& (agent_grid[y][x]).type == Zombie 
-            		&& (agent_grid[y-1][x+1]).type == Human) 
+            //if the entrance aren't in the first line and last column
+            if ((y < WORLD_Y-1) && (x > 0)
+            		&& (agent_grid[x][y]).type == Zombie 
+            		&& (agent_grid[x+1][y-1]).type == Human) 
             {
                 /*Swich the value of Human to Zombie*/
-               agent_grid[y-1][x+1].type = Zombie;
-                agent_grid[y-1][x+1].playable = 0x0;
-                turn++;
+                agent_grid[x+1][y-1].type = Zombie;
+                agent_grid[x+1][y-1].playable = 0x0;
+                round++;
                 break;       
             }
 
-            //if the entrance are in the last column 
-            else if ( x == WORLD_X-1 ) 
-            {
-                if((y ==  0) 
-                && ( agent_grid[y][x].type == Zombie ) 
-                && ( agent_grid[WORLD_Y-1][0].type == Human) )
+            //if the entrance are in the first line 
+            if ( y ==  0 ) 
+            {   
+                //and last column
+                if((x == WORLD_X-1 ) 
+                && ( agent_grid[x][y].type == Zombie ) 
+                && ( agent_grid[0][WORLD_Y-1].type == Human) )
                 {
                     /*Swich the value of Human to Zombie*/
-                    agent_grid[WORLD_Y-1][0].type = Zombie;
-                    agent_grid[WORLD_Y-1][0].playable = 0x0;
-                    turn++;
+                    agent_grid[0][WORLD_Y-1].type = Zombie;
+                    agent_grid[0][WORLD_Y-1].playable = 0x0;
+                    round++;
+                    break;   
+                }
+                //and aren't in the last column
+                if((x !=  0) 
+                && ( agent_grid[x][y].type == Zombie ) 
+                && ( agent_grid[x+1][WORLD_Y-1].type == Human) )
+                {
+                    /*Swich the value of Human to Zombie*/
+                    agent_grid[x+1][WORLD_Y-1].type = Zombie;
+                    agent_grid[x+1][WORLD_Y-1].playable = 0x0;
+                    round++;
                     break;   
                 }
 
-                if((y !=  0) 
-                && ( agent_grid[y][x].type == Zombie ) 
-                && ( agent_grid[y-1][0].type == Human) )
+                //if the entrance are in the first column and aren't in the first line
+                if( ((x == WORLD_X-1 ) && (y != 0)) && ( agent_grid[x][y].type == Zombie ) 
+                                                    && (agent_grid[0][y-1].type == Human) )
                 {
                     /*Swich the value of Human to Zombie*/
-                    agent_grid[y-1][0].type = Zombie;
-                    agent_grid[y-1][0].playable = 0x0;
-                    turn++;
-                    break;   
+                    agent_grid[0][y-1].type = Zombie;
+                    agent_grid[0][y-1].playable = 0x0;  
+                    round++;
+                    break;
+
                 }
 
 
             }
             else
             {
-                printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
             
             x=0; y=0;
     	   break;
-            }
+            
+        }
 
         case rdown: //right down mov
-        {printf("rdown ");
+        { printf("rdown ");
+
             //if the entrance aren't in the last line and last column
-            if ( ( y < WORLD_Y-1 && x < WORLD_X-1 ) &&
-            	(agent_grid[y+1][x+1].type == None ) ) 
+            if ( ( x < WORLD_X-1 && y < WORLD_Y-1 ) 
+            && (agent_grid[x+1][y+1].type == None ) ) 
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y+1][x+1]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x+1][y+1]; //hold blank value
 
                 /*Swich values between actual and blank values*/
-                agent_grid[y][x] = hold_pos2;
-                agent_grid[y+1][x+1] = hold_pos;  
-                turn++;
+                agent_grid[x][y] = hold_pos2;
+                agent_grid[x+1][y+1] = hold_pos;  
+                round++;
                 break;        
             }
 
 
              //if the entrance are in the last column 
-            else if ( x == WORLD_X-1 )
+            if ( x == WORLD_X-1 )
             {
 
-                if( (y != WORLD_Y-1) && (agent_grid[y+1][0].type == None ) )
-                {
-                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                    AGENT hold_pos2 = agent_grid[y+1][0]; //hold blank value
-
-                    /*Swich values between actual and blank value*/
-                    agent_grid[y+1][0] = hold_pos;
-                    agent_grid[y][x] = hold_pos2;  
-
-                   }
-
-                else if (y == WORLD_Y-1 && agent_grid[0][0].type == None )
+                if (y == WORLD_Y-1 && agent_grid[0][0].type == None )
                 { 
-                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                    AGENT hold_pos2 = agent_grid[01][0]; //hold blank value
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[0][0]; //hold blank value
 
                     /*Swich values between actual and blank value*/
                     agent_grid[0][0] = hold_pos;
-                    agent_grid[y][x] = hold_pos2;  
+                    agent_grid[x][y] = hold_pos2;  
                 }
 
-                turn++;
-                break;           
+
+                if( (y != WORLD_Y-1) && (agent_grid[0][y+1].type == None ) )
+                {
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[0][y+1]; //hold blank value
+
+                    /*Swich values between actual and blank value*/
+                    agent_grid[0][y+1] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
+                    break;
+                }
+                           
+            }
+
+
+            //if the entrance are in the last line and aren't in the last column
+            if( ((x != WORLD_X-1 )&&(y == WORLD_Y-1)) 
+            && (agent_grid[x+1][0].type == None))
+            {
+
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x+1][0]; //hold blank value
+
+                /*Swich values between actual and blank values*/
+                agent_grid[x+1][0] = hold_pos;
+                agent_grid[x][y] = hold_pos2;  
+                round++;
+                break;
+
             }
 				
 
-			/****************
-    	    * infect humans *
-            ****************/
+			                    /****************
+    	                        * infect humans *
+                                ****************/
             //if the entrance aren't in the last line and last column
-            else if ((y < WORLD_Y-1 && x < WORLD_X-1) 
-            	&& (agent_grid[y][x].type == Zombie )
-            	&& (agent_grid[y+1][x+1].type == Human ) )
+            if( (y < WORLD_Y-1 && x < WORLD_X-1)  
+            && (agent_grid[x][y].type == Zombie) 
+            && (agent_grid[y+1][x+1].type == Human ))
             {
-                 /*Swich the value of Human to Zombie*/
+                /*Swich the value of Human to Zombie*/
                 agent_grid[y+1][x+1].type = Zombie;
                 agent_grid[y+1][x+1].playable = 0x0;
-                turn++;
+                round++;
                 break;       
             }
 
-            //if the entrance are in the last line and last column 
-            else if ( ( y == WORLD_Y-1  || x == WORLD_X-1 ) 
-        	    && (agent_grid[y][x].type == Zombie )
-            	&& (agent_grid[0][0].type == Human ) )
+            
+             //if the entrance are in the last column 
+            if ( x == WORLD_X-1 )
+            {
+
+                if ((y == WORLD_Y-1) && (agent_grid[x][y].type == Zombie )
+                                     && (agent_grid[0][0].type == Human ))
+                { 
+                
+                    /*Swich the value of Human to Zombie*/
+                    agent_grid[0][0].type = Zombie;
+                    agent_grid[0][0].playable = 0x0;
+                    round++;
+                    break; 
+                }
+
+
+                if( (y != WORLD_Y-1) && (agent_grid[x][y].type == Zombie )
+                                    && (agent_grid[0][y+1].type == Human ))
                 {
-                /*Swich the value of Human to Zombie*/
-                agent_grid[0][0].type = Zombie;
-                agent_grid[0][0].playable = 0x0;
-                turn++;
-                break;       
+                    /*Swich the value of Human to Zombie*/
+                    agent_grid[0][y+1].type = Zombie;
+                    agent_grid[0][y+1].playable = 0x0;
+                    round++;
+                    break; 
+                }           
             }
+
+            //if the entrance are in the last line and aren't in the last column
+            if ( (x != WORLD_X-1 ) && (y == WORLD_Y-1)
+            && (agent_grid[x][y].type == Zombie )
+            && (agent_grid[x+1][0].type == Human))
+            {
+                /*Swich the value of Human to Zombie*/
+                agent_grid[x+1][0].type = Zombie;
+                agent_grid[x+1][0].playable = 0x0;
+                round++;
+                break; 
+            }
+
+
             else
             {
-                printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
             
             x=0; y=0;
@@ -537,89 +629,124 @@ unsigned int movement(
         case lup: // left up mov
         {printf("lup ");
             //if the entrance aren't in the first line and first column
-            if ( (y >0 && x >0 ) && ( agent_grid[y-1][x-1].type == None ) ) 
+            if ( (y >0 && x >0 ) && ( agent_grid[x-1][y-1].type == None ) ) 
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y-1][x-1]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x-1][y-1]; //hold blank value
 
                     /*Swich values between actual and blank values*/
-                agent_grid[y][x] = hold_pos2;
-                agent_grid[y-1][x-1] = hold_pos;  
-                turn++;
+                agent_grid[x][y] = hold_pos2;
+                agent_grid[x-1][y-1] = hold_pos;  
+                round++;
                 break;        
             }
 
 
-             //if the entrance are in the first column 
-            else if ( x == 0 ) 
+             //if the entrance are in the first line 
+            if ( y == 0 ) 
             {
-
-                if(y!=0 && (agent_grid[y-1][WORLD_X-1].type == None) )
+                //and first column
+                if(x == 0 && (agent_grid[WORLD_X-1][WORLD_Y-1].type == None) )
                 {
 
-                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                    AGENT hold_pos2 = agent_grid[y-1][WORLD_X-1]; //hold blank value
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[WORLD_X-1][WORLD_Y-1]; //hold blank value
 
                     /*Swich values between actual and blank values*/
-                    agent_grid[y-1][WORLD_X-1] = hold_pos;
-                    agent_grid[y][x] = hold_pos2;  
-                    turn++;
-                    break;  
-                } 
-
-                if(y == 0 && (agent_grid[WORLD_Y-1][WORLD_X-1].type == None) )
-                {
-
-                    AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                    AGENT hold_pos2 = agent_grid[WORLD_Y-1][WORLD_X-1]; //hold blank value
-
-                    /*Swich values between actual and blank values*/
-                    agent_grid[WORLD_Y-1][WORLD_X-1] = hold_pos;
-                    agent_grid[y][x] = hold_pos2;  
-                    turn++;
+                    agent_grid[WORLD_X-1][WORLD_Y-1] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
                     break;  
                 }
-            }			
+
+
+                if(x!=0 && (agent_grid[x-1][WORLD_Y-1].type == None) )
+                {
+
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[x-1][WORLD_Y-1]; //hold blank value
+
+                    /*Swich values between actual and blank values*/
+                    agent_grid[x-1][WORLD_Y-1] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
+                    break;  
+                }   
+            }	
+
+            if((y!=0 && x==0) && (agent_grid[WORLD_X-1][y-1].type == None) )
+                {
+
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[WORLD_X-1][y-1]; //hold blank value
+
+                    /*Swich values between actual and blank values*/
+                    agent_grid[WORLD_X-1][y-1] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
+                    break;  
+                }		
+
                				/****************
                				* infect humans *
                				****************/
+
             //if the entrance aren't in the first line and first column
-            else if ( ( y < WORLD_Y-1 && x < WORLD_X-1 ) 
-                    && ( agent_grid[y][x].type == Zombie )
-                	&& ( agent_grid[y+1][x+1].type == Human ) ) 
+            if ( ( y >0 && x >0  ) 
+            && ( agent_grid[x][y].type == Zombie )
+            && ( agent_grid[x-1][y-1].type == Human ) ) 
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y+1][x+1].type = Zombie;
-                agent_grid[y+1][x+1].playable = 0x0;
-                turn++;
+                agent_grid[x-1][y-1].type = Zombie;
+                agent_grid[x-1][y-1].playable = 0x0;
+                round++;
                 break;    
             }
 
-            //if the entrance are in the first line and first column 
-            else if ((y == 0 && x == 0) 
-            		&& (agent_grid[y][x]).type == Zombie 
-            		&& (agent_grid[WORLD_Y-1][WORLD_X-1].type == Human) )
+            //if the entrance are in the first line 
+            if ( y == 0 ) 
             {
-                /*Swich the value of Human to Zombie*/
-                agent_grid[WORLD_Y-1][WORLD_X-1].type = Zombie;
-                agent_grid[WORLD_Y-1][WORLD_X-1].playable = 0x0;
-                turn++;
-                break;    
-            }
+                //and first column
+                if(x == 0 && (agent_grid[x][y]).type == Zombie 
+                && (agent_grid[WORLD_X-1][WORLD_Y-1].type == Human) )
+                {
 
-            else if ((y != 0 && x == 0) 
-                    && (agent_grid[y][x]).type == Zombie 
-                    && (agent_grid[y-1][WORLD_X-1].type == Human) )
+                    /*Swich the value of Human to Zombie*/
+                    agent_grid[WORLD_X-1][WORLD_Y-1].type = Zombie;
+                    agent_grid[WORLD_X-1][WORLD_Y-1].playable = 0x0;
+                    round++;
+                    break; 
+
+                }
+
+                //and aren't in the first column
+                if(x!=0 && (agent_grid[x][y]).type == Zombie 
+                && (agent_grid[x-1][WORLD_Y-1].type == Human) )
+                {
+
+                    /*Swich the value of Human to Zombie*/
+                    agent_grid[x-1][WORLD_Y-1].type = Zombie;
+                    agent_grid[x-1][WORLD_Y-1].playable = 0x0;
+                    round++;
+                    break;   
+                }   
+            }   
+
+            if((y!=0 && x==0) && (agent_grid[x][y]).type == Zombie 
+            && (agent_grid[WORLD_X-1][y-1].type == Human) )
             {
+
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y-1][WORLD_X-1].type = Zombie;
-                agent_grid[y-1][WORLD_X-1].playable = 0x0;
-                turn++;
-                break;    
+                agent_grid[WORLD_X-1][y-1].type = Zombie;
+                agent_grid[WORLD_X-1][y-1].playable = 0x0;
+                round++;
+                break;  
             }
+            
             else
             {
-                printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
             
             key = 0;
@@ -630,70 +757,131 @@ unsigned int movement(
         case ldown: //left down mov
         {printf("ldown ");
             //if the entrance aren't in the last line and first column
-            if ( ( y > 0 && x < WORLD_X-1 ) 
-                && ( agent_grid[y-1][x+1].type == None ) )
+            if (( x > 0 && y < WORLD_Y-1 ) 
+                && ( agent_grid[x-1][y+1].type == None ) )
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y-1][x+1]; //hold blank value
+                AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                AGENT hold_pos2 = agent_grid[x-1][y+1]; //hold blank value
                     /*Swich values between actual and blank values*/
-                agent_grid[y][x] = hold_pos2;
-                agent_grid[y-1][x+1] = hold_pos; 
-                turn++;
+                agent_grid[x][y] = hold_pos2;
+                agent_grid[x-1][y+1] = hold_pos; 
+                round++;
                 break;    
             }
 
-             //if the entrance are in the first column and last line 
-            else if (( y == WORLD_Y-1 && x==0)&&
-            	(agent_grid[y-1][0].type == None) )
+            //if the entrance are in the first column and last line 
+            if (x==0)
             {
-                AGENT hold_pos = agent_grid[y][x]; //hold actual local value
-                AGENT hold_pos2 = agent_grid[y-1][0]; //hold blank value
 
-                /*Swich values between actual and blank values*/
-                agent_grid[y-1][0] = hold_pos;
-                agent_grid[y][x] = hold_pos2;  
-                turn++;
-                break;    
-            }
-			
+               if( y == WORLD_Y-1 && (agent_grid[WORLD_X-1][0].type == None) )
+                {
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[WORLD_X-1][0]; //hold blank value
+
+                    /*Swich values between actual and blank values*/
+                    agent_grid[WORLD_X-1][0] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
+                    break;    
+                }
+
+
+                   if( y != WORLD_Y-1 && (agent_grid[WORLD_X-1][y+1].type == None) )
+                {
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[WORLD_X-1][y+1]; //hold blank value
+
+                    /*Swich values between actual and blank values*/
+                    agent_grid[WORLD_X-1][y+1] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
+                    break;    
+                }
+			}
+
+            if((x!=0 && y == WORLD_Y-1) && (agent_grid[x-1][0].type == None) )
+                {
+                    AGENT hold_pos = agent_grid[x][y]; //hold actual local value
+                    AGENT hold_pos2 = agent_grid[x-1][0]; //hold blank value
+
+                    /*Swich values between actual and blank values*/
+                    agent_grid[x-1][0] = hold_pos;
+                    agent_grid[x][y] = hold_pos2;  
+                    round++;
+                    break;    
+                }
+
+
                				/****************
                				* infect humans *
                				****************/
+
             //if the entrance aren't in the first line and last column
-            else if ((y > 0) && (x < WORLD_X-1)
-            		&& (agent_grid[y][x].type == Zombie )
-            		&& (agent_grid[y-1][x+1].type == Human) )
+            if (( x > 0 && y < WORLD_Y-1 )
+            && (agent_grid[x][y].type == Zombie )
+            && (agent_grid[x-1][y+1].type == Human) )
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y-1][x+1].type = Zombie;
-                agent_grid[y-1][x+1].playable = 0x0;
-                turn++;
+                agent_grid[x-1][y+1].type = Zombie;
+                agent_grid[x-1][y+1].playable = 0x0;
+                round++;
                 break;   
             }
-            //if the entrance are in the first line and the last column 
-            else if ((x == WORLD_X-1)
-            	&& (agent_grid[y][x].type == Zombie )
-            	&& (agent_grid[y-1][0].type == Human))
+
+
+            //if the entrance are in the first column and last line 
+            if (x==0)
+            {
+
+                if( y == WORLD_Y-1 
+                && (agent_grid[x][y].type == Zombie )
+                && (agent_grid[WORLD_X-1][0].type == Human) )
+                {
+                    /*Swich the value of Human to Zombie*/
+                    agent_grid[WORLD_X-1][0].type = Zombie;
+                    agent_grid[WORLD_X-1][0].playable = 0x0;
+                    round++;
+                    break;  
+                }
+
+
+                    if( y != WORLD_Y-1 
+                    && (agent_grid[x][y].type == Zombie )
+                    && (agent_grid[WORLD_X-1][y+1].type == Human) )
+                {
+                    /*Swich the value of Human to Zombie*/
+                    agent_grid[WORLD_X-1][y+1].type = Zombie;
+                    agent_grid[WORLD_X-1][y+1].playable = 0x0;
+                    round++;
+                    break;    
+                }
+            }
+
+            if((x!=0 && y == WORLD_Y-1) 
+            && (agent_grid[x][y].type == Zombie )
+            && (agent_grid[x-1][0].type == Human) )
             {
                 /*Swich the value of Human to Zombie*/
-                agent_grid[y-1][0].type = Zombie;
-                agent_grid[y-1][0].playable = 0x0;
-                turn++;
-                break;    
+                agent_grid[x-1][0].type = Zombie;
+                agent_grid[x-1][0].playable = 0x0;
+                round++;
+                break;     
             }
+
             else
             {
-                printf("invalid moviment!\nthe cell what you want to move on is already occuepd.\n\n");
+                printf("invalid moviment!\n");
+                printf("the cell what you want to move on is already occuepd.\n");
             }
              
             x=0; y=0;
             break;
         }
 
-        case pass: // skip turn
+        case pass: // skip round
         {
-         	printf("\n turn skipped.\n");
-        	turn++;
+         	printf("\n round skipped.\n");
+        	round++;
             x=0; y=0;
             break;
         }
@@ -709,7 +897,7 @@ unsigned int movement(
         }
     }
 
-    if (turn == max_id){ turn++ ; }
+    
  
- return turn;
+ return round;
 }
