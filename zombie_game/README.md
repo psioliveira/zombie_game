@@ -166,4 +166,8 @@ A realização deste projecto deixou-nos familiarizados com a linguagem C e perm
 #### 4. Referências
 
 Bibliotecas utilizadas: <stdio.h><stdlib.h><time.h>
+Sites de apoio:
+https://stackoverflow.com/questions/1538420/difference-between-malloc-and-calloc
+https://www.dcc.fc.up.pt/~nam/aulas/0001/pi/slides/slipi0010/node9.html
+https://stackoverflow.com/questions/7898215/how-to-clear-input-buffer-in-c
 
